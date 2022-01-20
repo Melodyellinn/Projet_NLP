@@ -1,61 +1,42 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Jan 14 15:49:44 2022
-
-@author: Simplon
-"""
-
-from flask import Flask, render_template, request
-from tensorflow.keras.models import load_model
-import tensorflow.keras.preprocessing 
-from sklearn.feature_extraction.text import CountVectorizer
-import numpy as np
+#!/usr/bin/env python
+# coding: utf-8
+import streamlit as st
 import pickle
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
 
-app = Flask(__name__)
 
-@app.route('/')
-def home():
-    return render_template('index.html')
 
-@app.route('/predict', methods=['POST'])
-def predict():
+df = pd.read_csv("C:/Users/Simplon/Documents/meloyellinn/NLP_projet/NLP/data/spam_newcol.csv")
 
-    def get_sequences(texts, tokenizer, train=True, max_seq_length=None):
-        sequences = tokenizer.texts_to_sequences(texts)
-        if train == True:
-            max_seq_length = np.max(list(map(lambda x: len(x), sequences)))
-            sequences = tensorflow.keras.preprocessing.sequence.pad_sequences(sequences, maxlen=max_seq_length, padding='post')
+tfidf = pickle.load(open('vectorizer.pkl','rb'))
+corpus = pickle.load(open('corpus.pkl', 'rb'))
 
-        return sequences
+def transform_text(text):
+    tfidf = TfidfVectorizer(ngram_range=(1, 3))
+    X = tfidf.fit_transform(corpus)
+    y = df["CATEGORY"]
+    return corpus
 
-    def preprocess_test(df):
-        df = df.copy()
-    
-        # Drop FILE_NAME column
-        df = df.drop('FILE_NAME', axis=1)
-    
-        # Split df into X and y
-        y = df['CATEGORY']
-        X = df['MESSAGE']
-   
-        # Create tokenizer
-        tokenizer = pickle.load(open("tokenizer.pickle","rb"))
-        X_train_len = 14804
-    
-        # Convert texts to sequences
-        X_test = get_sequences(X, tokenizer, train=False, max_seq_length=X_train_len)
-        return X_test, y
 
-        cv = CountVectorizer()
-        model = load_model('model.h5')
-        
-        if request.method == 'POST':
-            #message = request.form['MESSAGE']
-            vect = cv.transform(X_test).toarray()
-            #data = [message]
-            my_prediction = model.predict(vect)
-        return render_template('index.html', prediction=my_prediction)
+model = pickle.load(open('model.pkl','rb'))
 
-if __name__ == '__main__':
-    app.run()
+
+st.title("Email/SMS Spam Classifier")
+
+input_sms = st.text_area("Enter the message")
+
+if st.button('Predict'):
+
+    # 1. preprocess
+    transformed_sms = transform_text(input_sms)
+    # 2. vectorize
+    vector_input = tfidf.transform(transformed_sms)
+    # 3. predict
+    result = model.predict(vector_input)[0]
+    # 4. Display
+    if result == 1:
+        st.header("Spam")
+    else:
+        st.header("Not Spam")
+
