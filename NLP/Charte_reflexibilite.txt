@@ -1,1 +1,9 @@
-Ici ma charte de réflexibilité
+Ici ma charte de réflexibilité : 
+
+Apprendre à connaître le NLP
+
+Comprendre les différents modèles utilisés : LightGBM, Embedding
+
+Tokenisation et création d'un corpus
+
+Créer une interface utilisteur et la présenter en démo
