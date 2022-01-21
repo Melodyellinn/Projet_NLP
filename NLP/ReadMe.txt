@@ -14,3 +14,7 @@ Vous pouvez voir notre planning ainsi que la présentation du projet !
 Enfin notre modèle, notre corpus de mots et notre méthode vectorizer sont conservés dans un format pickle.
 
 Notre application se trouve dans le "app.py" et est accompagné des éléments nécessaires pour pouvoir déployer sur Streamlit.
+
+
+Dans le dossier "first_app_dl" se trouve le premier modèle Embedding qui possède de bons résultats
+également mais notre équipe a rencontré des difficultés pour le déploiement de l'app.py.
